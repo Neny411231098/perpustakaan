@@ -64,6 +64,8 @@
 
 <?php
 if (isset($_POST['simpan'])) {
+
+
     $buku = $_POST['id_buku'];
     $judul = $_POST['judul_buku'];
     $pengarang = $_POST['pengarang'];

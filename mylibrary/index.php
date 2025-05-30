@@ -1,15 +1,17 @@
-<?php
+<<?php
 session_start();
+
+$koneksi = new mysqli("localhost", "root", "", "db_perpustakaan");
+if ($koneksi->connect_error) {
+    die("Koneksi gagal: " . $koneksi->connect_error);
+}
+
 if (!isset($_SESSION['admin']) && !isset($_SESSION['user'])) {
     header("location:login.php");
     exit;
 }
 ?>
 
-
-{
-
-}
 
 ?>
 
@@ -18,7 +20,7 @@ if (!isset($_SESSION['admin']) && !isset($_SESSION['user'])) {
 <head>
       <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Mylibrary</title>
+    <title>mylibrary</title>
     <!-- BOOTSTRAP STYLES-->
     <link href="assets/css/bootstrap.css" rel="stylesheet" />
      <!-- FONTAWESOME STYLES-->
@@ -40,7 +42,7 @@ if (!isset($_SESSION['admin']) && !isset($_SESSION['user'])) {
                     <span class="icon-bar"></span>
                     <span class="icon-bar"></span>
                 </button>
-                <a class="navbar-brand" href="index.html">Mylibrary</a> 
+                <a class="navbar-brand" href="index.html">Enjoy Read</a> 
             </div>
   <div style="color: white;
 padding: 15px 50px 5px 50px;

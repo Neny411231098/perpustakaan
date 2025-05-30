@@ -27,11 +27,11 @@
                     </div>
                     <div class="form-group">
                         <label>Tanggal Kembali</label>
-                        <input class="form-control" type="date" name="tanggal_pengembalian" id="tanggal_pengembalian" required />
+                        <input class="form-control" type="date" name="tanggal_pengembalian" id="tanggal_pengembalian" />
                     </div>
-                     <div class="form-group">
+                    <div class="form-group">
                         <label>Terlambat</label>
-                        <input class="form-control" name="terlambat" required />
+                        <input class="form-control" name="terlambat" />
                     </div>
                     <div class="form-group">
                         <label>Status</label>
@@ -45,7 +45,6 @@
                         <input type="submit" name="simpan" value="Simpan" class="btn btn-primary" />
                     </div>
                 </form>
-                <!-- FORM END -->
 
                 <!-- VALIDASI OTOMATIS TANGGAL KEMBALI -->
                 <script>
@@ -84,19 +83,44 @@ if (isset($_POST['simpan'])) {
         exit;
     }
 
-    $sql = $koneksi->query("INSERT INTO tb_transaksi (
-    id_transaksi, nama, judul_buku, tanggal_pinjam, tanggal_kembali, tanggal_pengembalian, terlambat, status
-) VALUES (
-    '$id_transaksi',
-    '$nama',
-    '$judul_buku',
-    '$tanggal_pinjam',
-    '$tanggal_kembali',
-    " . ($tanggal_pengembalian ? "'$tanggal_pengembalian'" : "NULL") . ",
-    " . ($terlambat ? "'$terlambat'" : "NULL") . ",
-    '$status'
-)");
+    // Ambil jumlah stok buku (jumlah_buku)
+    $cekBuku = $koneksi->query("SELECT jumlah_buku FROM tb_buku WHERE judul = '$judul_buku'");
+    $buku = $cekBuku->fetch_assoc();
 
+    if (!$buku) {
+        echo "<script>alert('Buku tidak ditemukan');</script>";
+        exit;
+    }
+
+    $jumlah_buku = $buku['jumlah_buku'];
+
+    // Jika status dipinjam, cek stok dulu
+    if ($status == 'Dipinjam') {
+        if ($jumlah_buku <= 0) {
+            echo "<script>alert('Stok buku habis');</script>";
+            exit;
+        }
+
+        // Kurangi stok
+        $koneksi->query("UPDATE tb_buku SET jumlah_buku = jumlah_buku - 1 WHERE judul = '$judul_buku'");
+    } elseif ($status == 'Dikembalikan') {
+        // Tambah stok jika status dikembalikan
+        $koneksi->query("UPDATE tb_buku SET jumlah_buku = jumlah_buku + 1 WHERE judul = '$judul_buku'");
+    }
+
+    // Simpan data transaksi
+    $sql = $koneksi->query("INSERT INTO tb_transaksi (
+        id_transaksi, nama, judul_buku, tanggal_pinjam, tanggal_kembali, tanggal_pengembalian, terlambat, status
+    ) VALUES (
+        '$id_transaksi',
+        '$nama',
+        '$judul_buku',
+        '$tanggal_pinjam',
+        '$tanggal_kembali',
+        " . ($tanggal_pengembalian ? "'$tanggal_pengembalian'" : "NULL") . ",
+        " . ($terlambat ? "'$terlambat'" : "NULL") . ",
+        '$status'
+    )");
 
     if ($sql) {
         echo "<script>alert('Data berhasil disimpan'); window.location.href='?page=transaksi';</script>";
